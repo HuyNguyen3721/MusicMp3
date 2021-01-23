@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="data"
+            type="com.example.appmusicmp3.item.Item_song" />
+    </data>
+    <LinearLayout
+        android:layout_margin="5dp"
+        android:layout_width="match_parent"
+        android:weightSum="5"
+        android:layout_height="wrap_content">
+
+        <androidx.cardview.widget.CardView
+            android:layout_weight="1"
+            android:id="@+id/parent_layout"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            app:cardCornerRadius="18dp">
+            <ImageView
+                app:setImage="@{data.uriImage}"
+                android:id="@+id/ivImageSong"
+                android:src="@drawable/ic_launcher_background"
+                android:layout_weight="1"
+                android:layout_height="80dp"
+                android:layout_width="match_parent" />
+        </androidx.cardview.widget.CardView>
+        <LinearLayout
+            android:padding="10dp"
+            android:orientation="vertical"
+            android:layout_weight="3"
+            android:layout_width="0dp"
+            android:layout_height="80dp">
+            <TextView
+                app:setText="@{data.songName}"
+                android:textSize="18sp"
+                android:textColor="#222121"
+                android:text="Níu Duyên"
+                android:id="@+id/txtname"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:layout_marginTop="10dp"
+                app:setText="@{data.singer}"
+                android:textSize="14sp"
+                android:textColor="#676666"
+                android:text="Lê Bảo Bình"
+                android:id="@+id/txtsinger"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <ImageView
+            android:id="@+id/ivMore"
+            android:layout_marginTop="17dp"
+            android:gravity="center"
+            android:src="@drawable/icon_more"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+</layout>

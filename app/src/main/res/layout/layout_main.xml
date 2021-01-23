@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    <LinearLayout android:layout_width="match_parent"
+        android:layout_margin="10dp"
+        android:orientation="vertical"
+        android:layout_height="wrap_content">
+        <EditText
+            android:id="@+id/edtsearchSong"
+            android:paddingStart="10dp"
+            android:inputType="textNoSuggestions|textVisiblePassword"
+            android:background="@drawable/radius_button"
+            android:drawableStart="@drawable/iconsearch"
+            android:layout_margin="10dp"
+            android:hint="  Tìm kiếm bài hát..."
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            tools:ignore="RtlSymmetry" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="135dp"
+            android:src="@drawable/sidebar" />
+        <TextView
+            android:textSize="22sp"
+            android:text="Có Thể Bạn Muốn Nghe"
+            android:textStyle="bold"
+            android:textColor="#131313"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rclULOVE"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:textSize="22sp"
+            android:text="Abum mới nhất"
+            android:textStyle="bold"
+            android:textColor="#131313"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rclAlbum"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="20dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:paddingBottom="20dp"
+            android:id="@+id/rclBXH"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+            <TextView
+                android:textColor="#E4384C"
+                android:textStyle="bold"
+                android:textSize="24sp"
+                android:text="Bảng Xếp Hạng"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rclListSong"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:textSize="20sp"
+            android:gravity="center"
+            android:textColor="#000000"
+            android:text="Xem thêm"
+            android:id="@+id/txtMore"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"/>
+    </LinearLayout>
+    </ScrollView>
+</layout>
