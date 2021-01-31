@@ -29,7 +29,7 @@
             android:layout_margin="10dp"
             android:hint="  Tìm kiếm bài hát..."
             android:layout_width="match_parent"
-            android:layout_height="35dp"
+            android:layout_height="37dp"
             tools:ignore="RtlSymmetry" />
         <com.google.android.material.button.MaterialButton
             app:backgroundTint="@null"

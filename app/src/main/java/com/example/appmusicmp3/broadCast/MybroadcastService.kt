@@ -6,27 +6,16 @@ import android.content.Context
 import android.content.Intent
 import android.os.AsyncTask
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
-import com.example.appmusicmp3.interfacemusic.IclickNotification
 import com.example.appmusicmp3.item.Item_song
 import com.example.appmusicmp3.service.ServiceMusic
 import org.jsoup.Jsoup
 
-class Mybroadcast : BroadcastReceiver {
-    private var inter: IclickNotification? = null
+class MybroadcastService : BroadcastReceiver() {
     var sevice: ServiceMusic? = null
-    fun setInter(i: IclickNotification) {
-        this.inter = i
-    }
-
-    constructor()
-
     override fun onReceive(context: Context?, intent: Intent) {
-//        Log.d("huy", "check inter onRecever : $inter")
         when (intent.action) {
             "BACK" -> {
-                inter?.onMBack()
                 if (sevice != null) {
                     if (sevice!!.pos - 1 < 0) {
                         sevice!!.pos = sevice!!.arr.size - 1
@@ -42,7 +31,6 @@ class Mybroadcast : BroadcastReceiver {
                 }
             }
             "PLAY" -> {
-                inter?.onMPlay()
                 sevice?.mediaPlayer?.start()
                 sevice?.createNotification(
                     sevice!!.pos,
@@ -51,7 +39,6 @@ class Mybroadcast : BroadcastReceiver {
                 )
             }
             "PAUSE" -> {
-                inter?.onMPause()
                 if (sevice != null && sevice!!.mediaPlayer!!.isPlaying) {
                     sevice!!.mediaPlayer!!.pause()
                     sevice!!.createNotification(
@@ -62,9 +49,6 @@ class Mybroadcast : BroadcastReceiver {
                 }
             }
             "NEXT","AUTO_NEXT" -> {
-                Log.d("huy", "check inter:$inter")
-                inter?.onMNext()
-                Log.d("huy", "check service:$sevice")
                 if (sevice != null) {
                     nextMusic()
                 }
@@ -92,30 +76,24 @@ class Mybroadcast : BroadcastReceiver {
             val asyn = @SuppressLint("StaticFieldLeak")
             object : AsyncTask<String, Void, String>() {
                 override fun doInBackground(vararg params: String?): String {
-                    val linkCrawl = params[0]
-                    val doc = Jsoup.connect(linkCrawl).get()
-                    return doc.select("ul.list-unstyled").select("li")
-                        .select("a.download_item")[1].attr("href")
+                    try {
+                        val linkCrawl = params[0]
+                        val doc = Jsoup.connect(linkCrawl).get()
+                        return doc.select("ul.list-unstyled").select("li")
+                            .select("a.download_item")[1].attr("href")
+                    }catch (e : java.net.SocketTimeoutException){
+                        //
+                    }
+                    return ""
                 }
-
                 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
                 override fun onPostExecute(result: String) {
                     sevice?.playMusicMp3(pos, arr, result)
-                    sevice?.mediaPlayer?.setOnPreparedListener {
-                        sevice?.mediaPlayer?.start()
-//                        Log.d("huy","check mussic setOnPreparedListener inter : $inter")
-                        inter?.loadTimeMusic()
-                    }
                 }
             }
             asyn.execute(arr[pos].link_music)
         } else {
             sevice?.playMusicMp3(pos, arr, arr[pos].link_music!!)
-            sevice?.mediaPlayer?.setOnPreparedListener {
-                sevice?.mediaPlayer?.start()
-//                Log.d("huy","getLinkMp3 off")
-                inter?.loadTimeMusic()
-            }
         }
     }
 }

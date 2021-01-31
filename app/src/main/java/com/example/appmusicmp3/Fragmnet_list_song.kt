@@ -5,7 +5,6 @@ import android.os.AsyncTask
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,6 +34,7 @@ class Fragmnet_list_song : Fragment(), Adapter_recycleList.IOnClickList {
         binding.rclList.layoutManager = LinearLayoutManager(binding.root.context)
         val adapter = Adapter_recycleList(this)
         binding.rclList.adapter = adapter
+        //
         binding.btnPlayrandom.setOnClickListener {
             val random = Random.nextInt(arrDataSongFull.size)
             (activity as MainActivity).fragment_playmusic(random, arrDataSongFull)
@@ -44,30 +44,35 @@ class Fragmnet_list_song : Fragment(), Adapter_recycleList.IOnClickList {
 
     @SuppressLint("StaticFieldLeak")
     fun getDataFull(url: String) {
+        val arr = mutableListOf<Item_song>()
         val asyn = object : AsyncTask<String, Void, MutableList<Item_song>>() {
             override fun doInBackground(vararg params: String?): MutableList<Item_song> {
-                val linkCrawl = params[0]
-                val doc = Jsoup.connect(linkCrawl).get()
-                val arr = mutableListOf<Item_song>()
-                for (d in doc.select("div.row10px").select("div.col")) {
-                    val link =
-                        d.select("div.col").select("div.card ").select("div.card-header")
-                            .attr("style")
-                    val sizes = link.split("(").size
-                    val index = link.split("(").get(sizes - 1).lastIndexOf(')')
-                    val linkImage = link.split("(").get(sizes - 1).substring(0, index)
-                    var name =
-                        d.select("div.col").select("div.card-body").select("h3")
-                            .select("a").text()
-                    var singer = ""
-                    for (i in d.select("div.col").select("div.card-body").select("p")
-                        .select("a")) {
-                        singer += i.select("a").text()
+                    try {
+                        val linkCrawl = params[0]
+                        val doc = Jsoup.connect(linkCrawl).get()
+                        for (d in doc.select("div.row10px").select("div.col")) {
+                            val link =
+                                d.select("div.col").select("div.card ").select("div.card-header")
+                                    .attr("style")
+                            val sizes = link.split("(").size
+                            val index = link.split("(").get(sizes - 1).lastIndexOf(')')
+                            val linkImage = link.split("(").get(sizes - 1).substring(0, index)
+                            var name =
+                                d.select("div.col").select("div.card-body").select("h3")
+                                    .select("a").text()
+                            var singer = ""
+                            for (i in d.select("div.col").select("div.card-body").select("p")
+                                .select("a")) {
+                                singer += i.select("a").text()
+                            }
+                            val linkMusic ="https://vi.chiasenhac.vn${d.select("div.col").select("div.card ").select("div.card-header")
+                                .select("a").attr("href")}"
+                            arr.add(Item_song(linkImage, name, singer, linkMusic))
+                        }
+                        return arr
+                    }catch (e : Exception){
+                        //
                     }
-                    val linkMusic ="https://vi.chiasenhac.vn${d.select("div.col").select("div.card ").select("div.card-header")
-                        .select("a").attr("href")}"
-                    arr.add(Item_song(linkImage, name, singer, linkMusic))
-                }
                 return arr
             }
 
@@ -92,7 +97,6 @@ class Fragmnet_list_song : Fragment(), Adapter_recycleList.IOnClickList {
                     }
 
                     override fun afterTextChanged(s: Editable?) {
-                        Log.d("test", binding.edtsearchSong.text.toString())
                         arrDataSongFull.clear()
                         for (i in result) {
                             if (i.songName!!.startsWith(binding.edtsearchSong.text.toString())) {

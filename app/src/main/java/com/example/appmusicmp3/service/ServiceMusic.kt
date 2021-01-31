@@ -1,8 +1,6 @@
 package com.example.appmusicmp3.service
 
 import android.app.*
-import android.appwidget.AppWidgetProvider
-import android.content.ComponentName
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
@@ -12,15 +10,13 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.*
-import android.util.Log
 import android.widget.RemoteViews
-import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.example.appmusicmp3.MainActivity
-import com.example.appmusicmp3.broadCast.Mybroadcast
+import com.example.appmusicmp3.broadCast.MybroadcastService
 import com.example.appmusicmp3.item.Item_song
 import com.example.appmusicmp3.R
 
@@ -28,7 +24,7 @@ class ServiceMusic : Service() {
     var mediaPlayer: MediaPlayer? = null
     var pos = 0
     var arr = mutableListOf<Item_song>()
-    private lateinit var mybroadcast: Mybroadcast
+    private  var mybroadcastService: MybroadcastService? =null
     lateinit var notificationManager: NotificationManager
 
     // service dispaly list music view  se rang buoc vs  view  dung boud sẻvice
@@ -43,15 +39,17 @@ class ServiceMusic : Service() {
         return Mybinder(this)
     }
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        mybroadcast = Mybroadcast()
-        mybroadcast.sevice = this
+        if(mybroadcastService == null){
+            mybroadcastService = MybroadcastService()
+            mybroadcastService!!.sevice = this
+        }
         val intentfiler = IntentFilter()
         intentfiler.addAction("BACK")
         intentfiler.addAction("NEXT")
         intentfiler.addAction("PLAY")
         intentfiler.addAction("PAUSE")
         intentfiler.addAction("AUTO_NEXT")
-        this.registerReceiver(mybroadcast, intentfiler)
+        this.registerReceiver(mybroadcastService, intentfiler)
         return START_NOT_STICKY
     }
 
@@ -65,16 +63,19 @@ class ServiceMusic : Service() {
         if(linkMp3.startsWith("https")){
             mediaPlayer?.setDataSource(linkMp3)
         }else{
-            Log.d("huy","media off")
             mediaPlayer?.setDataSource( this, Uri.parse(linkMp3))
         }
         mediaPlayer?.setAudioStreamType(AudioManager.STREAM_MUSIC)
         mediaPlayer?.prepareAsync()
-        (applicationContext as MyApp).datalive.linkMp3.value = linkMp3
+        mediaPlayer?.setOnPreparedListener{
+            mediaPlayer?.start()
+            (applicationContext as MyApp).datalive.linkMp3.value = linkMp3
+        }
         mediaPlayer?.setOnCompletionListener {
             val intent = Intent("AUTO_NEXT")
             sendBroadcast(intent)
         }
+        createNotification(pos, arr,true)
     }
     fun createNotification(pos: Int, arr: MutableList<Item_song>, isplaying: Boolean) {
         notificationManager = this.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
@@ -164,7 +165,7 @@ class ServiceMusic : Service() {
     }
 
     override fun onDestroy() {
-        this.unregisterReceiver(mybroadcast)
+        this.unregisterReceiver(mybroadcastService)
         super.onDestroy()
     }
 }

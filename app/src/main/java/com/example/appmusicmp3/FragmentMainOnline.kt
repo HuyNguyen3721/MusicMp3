@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.appmusicmp3.adapter.Adapter_recycleList
@@ -18,8 +19,10 @@ import com.example.appmusicmp3.item.Item_BXH
 import com.example.appmusicmp3.item.Item_song
 import com.example.appmusicmp3.item.Data_object
 import org.jsoup.Jsoup
+import java.util.concurrent.TimeoutException
 
-class FragmentMainOnline : Fragment(), Adapter_recycle_love.IOnClickLove, Adpater_recycle_BXH.IOnClickBXH,
+class FragmentMainOnline : Fragment(), Adapter_recycle_love.IOnClickLove,
+    Adpater_recycle_BXH.IOnClickBXH,
     Adapter_recycle_album.IOnClickAlbum, Adapter_recycleList.IOnClickList {
     private var arrlove = mutableListOf<Item_song>()
     private var arralbum = mutableListOf<Item_song>()
@@ -37,7 +40,7 @@ class FragmentMainOnline : Fragment(), Adapter_recycle_love.IOnClickLove, Adpate
             LinearLayoutManager(binding.rclULOVE.context, LinearLayoutManager.HORIZONTAL, false)
         val adapterlove = Adapter_recycle_love(this)
         binding.rclULOVE.adapter = adapterlove
-
+        //
         binding.rclAlbum.layoutManager =
             LinearLayoutManager(binding.rclAlbum.context, LinearLayoutManager.HORIZONTAL, false)
         val adapteralbum = Adapter_recycle_album(this)
@@ -52,6 +55,7 @@ class FragmentMainOnline : Fragment(), Adapter_recycle_love.IOnClickLove, Adpate
             LinearLayoutManager(binding.rclBXH.context)
         val adapterlistsong = Adapter_recycleList(this)
         binding.rclListSong.adapter = adapterlistsong
+        //
         binding.txtMore.setOnClickListener { (activity as MainActivity).fragmnet_list_song() }
         // search song
         return binding.root
@@ -59,14 +63,15 @@ class FragmentMainOnline : Fragment(), Adapter_recycle_love.IOnClickLove, Adpate
 
     // aysn thay đổi dữ liệu
     fun loadData(url: String) {
+        val arr = mutableListOf<Item_song>()
+        val arrlist = mutableListOf<Item_song>()
+        val arrbxh = mutableListOf<Item_BXH>()
         val asyn = @SuppressLint("StaticFieldLeak")
         object : AsyncTask<String, Void, Data_object>() {
             override fun doInBackground(vararg params: String?): Data_object {
-                val linkCrawl = params[0]
-                val doc = Jsoup.connect(linkCrawl).get()
-                val arr = mutableListOf<Item_song>()
-                val arrlist = mutableListOf<Item_song>()
-                val arrbxh = mutableListOf<Item_BXH>()
+                try {
+                    val linkCrawl = params[0]
+                    val doc = Jsoup.connect(linkCrawl).get()
                 arrbxh.add(Item_BXH("https://data.chiasenhac.com/imgs/bxh/BXHNhacVietNam_245x140.png"))
                 arrbxh.add(Item_BXH("https://data.chiasenhac.com/imgs/bxh/BXHVideo_245x140.png"))
                 arrbxh.add(Item_BXH("https://data.chiasenhac.com/imgs/bxh/BXHNhacUs-UK_245x140.png"))
@@ -80,7 +85,9 @@ class FragmentMainOnline : Fragment(), Adapter_recycle_love.IOnClickLove, Adpate
                     val linkImg =
                         d.select("li.media").select("div.media-left").select("a").select("img")
                             .attr("src")
-                    val linkMusic = "https://vi.chiasenhac.vn${d.select("li.media").select("div.media-left").select("a").attr("href")}"
+                    val linkMusic =
+                        "https://vi.chiasenhac.vn${d.select("li.media").select("div.media-left")
+                            .select("a").attr("href")}"
                     var songer = ""
                     for (i in d.select("li.media").select("div.media-body")
                         .select("div.align-items-center").select("div.author")) {
@@ -90,7 +97,6 @@ class FragmentMainOnline : Fragment(), Adapter_recycle_love.IOnClickLove, Adpate
                 }
                 //
                 for (d in doc.select("div.col-md-9").select("div.row10px").select("div.col")) {
-                    try {
                         val link = d.select("div.col").select("div.card").select("div.card-header")
                             .attr("style")
                         val index = link.indexOf('(')
@@ -103,19 +109,21 @@ class FragmentMainOnline : Fragment(), Adapter_recycle_love.IOnClickLove, Adpate
                             .select("a")) {
                             singer += i.select("a").text()
                         }
-                        val linkMusic ="https://vi.chiasenhac.vn${d.select("div.col").select("div.card ").select("div.card-header").select("a").attr("href")}"
+                        val linkMusic =
+                            "https://vi.chiasenhac.vn${d.select("div.col").select("div.card ")
+                                .select("div.card-header").select("a").attr("href")}"
                         arr.add(Item_song(linkImage, name, singer, linkMusic))
                         if (arr.size == 10) {
                             break
                         }
-                    } catch (e: Exception) {
-                        //
-                    }
                 }
-
                 return Data_object(arr, arrbxh, arrlist)
-            }
+                //
+                }catch (e : Exception){
 
+                }
+                return Data_object(arr,arrbxh,arrlist)
+            }
             override fun onPostExecute(result: Data_object) {
                 arralbum.clear()
                 arrlove.clear()
@@ -143,8 +151,8 @@ class FragmentMainOnline : Fragment(), Adapter_recycle_love.IOnClickLove, Adpate
     }
 
     override fun getCount(): Int {
-            return arrlistsong.size
-        }
+        return arrlistsong.size
+    }
 
     override fun getData(position: Int): Item_song {
         return arrlistsong[position]
@@ -155,7 +163,7 @@ class FragmentMainOnline : Fragment(), Adapter_recycle_love.IOnClickLove, Adpate
     }
 
     override fun getCountItemLove(): Int {
-           return arrlove.size
+        return arrlove.size
     }
 
     override fun getDataLove(position: Int): Item_song {
@@ -167,7 +175,7 @@ class FragmentMainOnline : Fragment(), Adapter_recycle_love.IOnClickLove, Adpate
     }
 
     override fun getCountItemAlbum(): Int {
-          return  arralbum.size
+        return arralbum.size
     }
 
     override fun getDataAlbum(position: Int): Item_song {
@@ -179,7 +187,7 @@ class FragmentMainOnline : Fragment(), Adapter_recycle_love.IOnClickLove, Adpate
     }
 
     override fun getCountBXH(): Int {
-        return   arrbxh.size
+        return arrbxh.size
     }
 
     override fun getDataBXH(position: Int): Item_BXH {

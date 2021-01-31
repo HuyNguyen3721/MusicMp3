@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +13,7 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.example.appmusicmp3.adapter.Adapter_recycleList
 import com.example.appmusicmp3.databinding.LayoutMainOfflineBinding
 import com.example.appmusicmp3.item.Item_song
@@ -104,7 +104,6 @@ class FragmentMainOffline : Fragment(), Adapter_recycleList.IOnClickList {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        Log.d("huy" , " onRequestPermissionsResult")
         if (requestCode == 1 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             getDataMusicOffline()
         } else {
