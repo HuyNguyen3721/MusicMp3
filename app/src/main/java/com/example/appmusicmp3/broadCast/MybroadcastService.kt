@@ -8,7 +8,6 @@ import android.os.AsyncTask
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import com.example.appmusicmp3.interfacemusic.IAutoNext
 import com.example.appmusicmp3.interfacemusic.IclickNotification
 import com.example.appmusicmp3.item.Item_song
 import com.example.appmusicmp3.service.ServiceMusic
@@ -16,25 +15,21 @@ import org.jsoup.Jsoup
 
 class Mybroadcast : BroadcastReceiver {
     private var inter: IclickNotification? = null
-    private var iautonext: IAutoNext? = null
     var sevice: ServiceMusic? = null
     fun setInter(i: IclickNotification) {
         this.inter = i
     }
 
-    fun setIAutoNext(a: IAutoNext) {
-        this.iautonext = a
-    }
-
     constructor()
 
     override fun onReceive(context: Context?, intent: Intent) {
+//        Log.d("huy", "check inter onRecever : $inter")
         when (intent.action) {
             "BACK" -> {
                 inter?.onMBack()
                 if (sevice != null) {
                     if (sevice!!.pos - 1 < 0) {
-                        sevice!!.pos = sevice!!.arr.size
+                        sevice!!.pos = sevice!!.arr.size - 1
                     } else {
                         sevice!!.pos -= 1
                     }
@@ -48,12 +43,12 @@ class Mybroadcast : BroadcastReceiver {
             }
             "PLAY" -> {
                 inter?.onMPlay()
-                    sevice?.mediaPlayer?.start()
-                    sevice?.createNotification(
-                        sevice!!.pos,
-                        sevice!!.arr,
-                        sevice!!.mediaPlayer!!.isPlaying
-                    )
+                sevice?.mediaPlayer?.start()
+                sevice?.createNotification(
+                    sevice!!.pos,
+                    sevice!!.arr,
+                    sevice!!.mediaPlayer!!.isPlaying
+                )
             }
             "PAUSE" -> {
                 inter?.onMPause()
@@ -66,14 +61,10 @@ class Mybroadcast : BroadcastReceiver {
                     )
                 }
             }
-            "NEXT" -> {
+            "NEXT","AUTO_NEXT" -> {
+                Log.d("huy", "check inter:$inter")
                 inter?.onMNext()
-                if (sevice != null) {
-                    nextMusic()
-                }
-            }
-            "AUTO_NEXT" -> {
-                iautonext?.autonext()
+                Log.d("huy", "check service:$sevice")
                 if (sevice != null) {
                     nextMusic()
                 }
@@ -112,6 +103,8 @@ class Mybroadcast : BroadcastReceiver {
                     sevice?.playMusicMp3(pos, arr, result)
                     sevice?.mediaPlayer?.setOnPreparedListener {
                         sevice?.mediaPlayer?.start()
+//                        Log.d("huy","check mussic setOnPreparedListener inter : $inter")
+                        inter?.loadTimeMusic()
                     }
                 }
             }
@@ -120,6 +113,8 @@ class Mybroadcast : BroadcastReceiver {
             sevice?.playMusicMp3(pos, arr, arr[pos].link_music!!)
             sevice?.mediaPlayer?.setOnPreparedListener {
                 sevice?.mediaPlayer?.start()
+//                Log.d("huy","getLinkMp3 off")
+                inter?.loadTimeMusic()
             }
         }
     }
